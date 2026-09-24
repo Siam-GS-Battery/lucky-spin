@@ -304,7 +304,7 @@ body.admin-open #scene,body.admin-open .picker,body.admin-open .player-card,body
   <div class="admin-wrap">
     <div class="admin-head">
       <div><h1>จัดการวงล้อ</h1><p>ของรางวัล อัตราการออก และการเชื่อมต่อ Google Sheet</p></div>
-      <button class="btn" id="lockBtn">ล็อกแล้วกลับหน้าผู้เล่น</button>
+      <button class="btn" id="lockBtn">กลับหน้าผู้เล่น</button>
     </div>
     <nav class="tabs" role="tablist">
       <button role="tab" aria-selected="true" data-tab="prizes">ของรางวัลและเรท</button>
@@ -355,9 +355,7 @@ body.admin-open #scene,body.admin-open .picker,body.admin-open .player-card,body
           <div class="setting"><div><div class="t">ระยะเวลาหมุน</div><div class="d" id="durLabel"></div></div><input type="range" id="duration" min="4" max="12" step="1" style="accent-color:#1E5BFF"></div>
         </div>
         <div class="card">
-          <h2>ความปลอดภัยและข้อมูล</h2>
-          <div class="field" style="margin-top:14px"><label for="newPin">เปลี่ยน PIN แอดมิน (ตัวเลข 4–8 หลัก)</label>
-            <div class="row"><input class="input" id="newPin" inputmode="numeric" maxlength="8" placeholder="PIN ใหม่"><button class="btn" id="savePinBtn" style="flex:0 0 auto">บันทึก PIN</button></div></div>
+          <h2>ข้อมูล</h2>
           <div class="setting"><div><div class="t">สำรองการตั้งค่า</div><div class="d">ย้ายของรางวัลและเรทไปเครื่องอื่น</div></div>
             <div class="row" style="flex:0 0 auto"><button class="btn sm" id="exportCfgBtn">ส่งออก</button><label class="btn sm" style="cursor:pointer">นำเข้า<input type="file" id="importCfg" accept=".json" hidden></label></div></div>
           <div class="setting"><div><div class="t">รีเซ็ตเครื่องนี้</div><div class="d">ล้างการตั้งค่าและข้อมูลทดลองในเบราว์เซอร์ ไม่แตะ Google Sheet</div></div><button class="btn sm danger" id="resetAllBtn">รีเซ็ต</button></div>
@@ -367,14 +365,6 @@ body.admin-open #scene,body.admin-open .picker,body.admin-open .player-card,body
   </div>
 </section>
 
-<div class="modal" id="pinModal" role="dialog" aria-modal="true" aria-labelledby="pinTitle">
-  <div class="modal-card">
-    <h3 id="pinTitle">เข้าสู่โหมดแอดมิน</h3><p>กรอก PIN เพื่อจัดการวงล้อ</p>
-    <input class="input pin-input" id="pinInput" type="password" inputmode="numeric" maxlength="8" autocomplete="off" aria-label="PIN">
-    <p class="msg err" id="pinMsg"></p>
-    <div class="row" style="margin-top:6px"><button class="btn ghost" id="pinCancel">ยกเลิก</button><button class="btn primary" id="pinOk">เข้าสู่ระบบ</button></div>
-  </div>
-</div>
 <div class="toast" id="toast" role="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -409,7 +399,7 @@ const BOOTH = BOOTHS[BOOTH_KEY];
 const KEY = 'luckydraw.v2' + (BOOTH ? '.' + BOOTH_KEY : '');
 const defaults = () => ({
   title:'GS Battery AI Showcase', sub:BOOTH?.sub || 'งานแสดงสินค้า 2026', scriptUrl:'', sheetName:BOOTH?.sheetName || '', demo:!ENV.proxy, autoRefresh:true,
-  duration:7, pin:'1234', sound:true, showPlayed:true,
+  duration:7, sound:true, showPlayed:true,
   prizes:[
     {id:uid(), name:'กระบอกน้ำ',         color:'#FFFFFF', rate:2.5,  stock:3,  enabled:true, win:true},
     {id:uid(), name:'กระเป๋าผ้า',         color:'#1E5BFF', rate:5,    stock:BOOTH?.bags ?? 8, enabled:true, win:true},
@@ -425,7 +415,7 @@ let demoPlayers = saved?.demoPlayers || null;
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify({S, pending, demoPlayers})); }catch(e){} }
 
 /* ================= Players ================= */
-let players = [], source = 'demo', colMap = {}, booth = '', state = 'select', selected = null, spinning = false, rot = 0, refreshTimer = null, adminUnlocked = false;
+let players = [], source = 'demo', colMap = {}, booth = '', state = 'select', selected = null, spinning = false, rot = 0, refreshTimer = null;
 const COLS = {id:['id'], booth:['booth','บูธ'], name:['ชื่อ','name','ข้อมูลติดต่อ'], company:['บริษัท','company'], feedback:['feedback','ข้อเสนอแนะเพิ่มเติม'], played:['played'], prize:['รางวัล','prize']};
 function makeDemo(){
   const d=[['ณัฐวุฒิ ศรีสุข','สยามเทค โซลูชั่น','A1'],['พิมพ์ชนก วงศ์ใหญ่','ไทยพาวเวอร์ ซิสเต็มส์','A1'],['ธนกร แก้วมณี','อีสเทิร์น มอเตอร์','A2'],['ศิริพร ทองดี','บางกอก ลอจิสติกส์','A2'],['กิตติพัฒน์ ใจงาม','กรีนเอนเนอร์ยี่ ไทย','B1'],['อรอุมา เพชรรัตน์','เมโทร ออโต้พาร์ท','B1'],['ปวริศ บุญมา','ไทยสมาร์ท แฟคทอรี่','B2'],['ชุติมา สายทอง','สยามเทค โซลูชั่น','B2'],['วรเมธ อินทร์แก้ว','เจริญผล อินดัสทรี','C1'],['ภัทรา จันทร์หอม','อีวี คอนเนกต์','C1'],['สุรเชษฐ์ มั่นคง','ไทยพาวเวอร์ ซิสเต็มส์','C2'],['นภัสสร รุ่งเรือง','บางกอก ลอจิสติกส์','C2']];
@@ -926,10 +916,6 @@ function closeAdmin(){
   $('#modeUser').setAttribute('aria-pressed','true'); $('#modeAdmin').setAttribute('aria-pressed','false');
   renderList(); paintTexture(); refreshHub();
 }
-function tryPin(){
-  if($('#pinInput').value===String(S.pin)){ adminUnlocked=true; $('#pinModal').classList.remove('open'); openAdmin(); if(S.pin==='1234') toast('PIN เริ่มต้นคือ 1234 เปลี่ยนได้ในแท็บตั้งค่า'); }
-  else { $('#pinMsg').textContent='PIN ไม่ถูกต้อง'; $('#pinInput').select(); }
-}
 
 /* ================= Events ================= */
 $('#list').addEventListener('click',e=>{ const b=e.target.closest('.person'); if(b&&!b.disabled) selectPlayer(b.dataset.id); });
@@ -941,10 +927,8 @@ $('#nextBtn').onclick=nextPlayer;
 addEventListener('keydown',e=>{ if(e.key==='Escape' && state==='ready' && $('#admin').hidden) backToSelect(); });
 $('#soundBtn').onclick=()=>{ S.sound=!S.sound; save(); renderSoundBtn(); };
 $('#modeUser').onclick=()=>{ if(!$('#admin').hidden) closeAdmin(); };
-$('#modeAdmin').onclick=()=>{ if(spinning||state==='reveal') return; if(adminUnlocked) return openAdmin(); $('#pinInput').value=''; $('#pinMsg').textContent=''; $('#pinModal').classList.add('open'); setTimeout(()=>$('#pinInput').focus(),50); };
-$('#pinOk').onclick=tryPin; $('#pinCancel').onclick=()=>$('#pinModal').classList.remove('open');
-$('#pinInput').addEventListener('keydown',e=>{ if(e.key==='Enter') tryPin(); if(e.key==='Escape') $('#pinModal').classList.remove('open'); });
-$('#lockBtn').onclick=()=>{ adminUnlocked=false; closeAdmin(); };
+$('#modeAdmin').onclick=()=>{ if(spinning||state==='reveal') return; openAdmin(); }; // the app login already guards admin
+$('#lockBtn').onclick=closeAdmin;
 $('#logoutBtn').hidden = !ENV.auth;
 $('#logoutBtn').onclick=()=>{ if(spinning || state==='reveal' || !confirm('ออกจากระบบเพื่อเปลี่ยนบูธ? ต้อง login และเลือกบูธใหม่')) return; location.href='/logout'; };
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{ document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b)); document.querySelectorAll('.tabpanel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+b.dataset.tab)); });
@@ -963,10 +947,9 @@ $('#titleInput').oninput=e=>{ S.title=e.target.value; save(); applyTitles(); };
 $('#subInput').oninput=e=>{ S.sub=e.target.value; save(); applyTitles(); };
 $('#showPlayed').onchange=e=>{ S.showPlayed=e.target.checked; save(); renderList(); };
 $('#duration').oninput=e=>{ S.duration=+e.target.value; $('#durLabel').textContent=`${S.duration} วินาที`; save(); };
-$('#savePinBtn').onclick=()=>{ const v=$('#newPin').value.trim(); if(!/^\d{4,8}$/.test(v)) return toast('PIN ต้องเป็นตัวเลข 4–8 หลัก'); S.pin=v; save(); $('#newPin').value=''; toast('บันทึก PIN ใหม่แล้ว'); };
-$('#exportCfgBtn').onclick=()=>{ const {pin,...rest}=S; download('lucky-draw-config.json',JSON.stringify(rest,null,2),'application/json'); };
+$('#exportCfgBtn').onclick=()=>{ download('lucky-draw-config.json',JSON.stringify(S,null,2),'application/json'); };
 $('#importCfg').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ const c=JSON.parse(r.result); if(!Array.isArray(c.prizes)) throw 0; delete c.pin; S=Object.assign(S,c); save(); buildSegments(); applyTitles(); loadPlayers(true); openAdmin(); toast('นำเข้าการตั้งค่าแล้ว'); }catch(err){ toast('ไฟล์ตั้งค่าไม่ถูกต้อง'); } }; r.readAsText(f); e.target.value=''; };
-$('#resetAllBtn').onclick=()=>{ if(!confirm('รีเซ็ตการตั้งค่าและข้อมูลทดลองในเครื่องนี้?')) return; S=defaults(); pending=[]; demoPlayers=null; save(); adminUnlocked=false; closeAdmin(); buildSegments(); applyTitles(); renderSoundBtn(); loadPlayers(); toast('รีเซ็ตแล้ว'); };
+$('#resetAllBtn').onclick=()=>{ if(!confirm('รีเซ็ตการตั้งค่าและข้อมูลทดลองในเครื่องนี้?')) return; S=defaults(); pending=[]; demoPlayers=null; save(); closeAdmin(); buildSegments(); applyTitles(); renderSoundBtn(); loadPlayers(); toast('รีเซ็ตแล้ว'); };
 addEventListener('resize',resize);
 
 /* ================= Boot ================= */
