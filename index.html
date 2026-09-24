@@ -59,7 +59,13 @@ button{cursor:pointer}
 .switch{display:flex;padding:4px;border-radius:999px;background:rgba(4,16,46,.5);border:1px solid var(--line);backdrop-filter:blur(12px)}
 .switch button{border:0;background:transparent;padding:8px 16px;border-radius:999px;font-weight:600;font-size:14px;color:var(--muted);transition:background .25s,color .25s}
 .switch button[aria-pressed="true"]{background:var(--white);color:var(--black)}
-@media (max-width:760px){ .brand-sub,#syncPill .txt{display:none} .switch button{padding:8px 12px} }
+.switch button{white-space:nowrap}
+@media (max-width:760px){ .brand-sub,#syncPill .txt{display:none} .switch button{padding:8px 12px}
+  .topbar{gap:8px} .top-right{gap:6px} .icon-btn{width:36px;height:36px;border-radius:11px} #syncPill{padding:8px 10px} }
+@media (max-width:480px){ .brand-name{display:none} .brand-logo{height:30px}
+  .icon-btn{width:34px;height:34px} .switch button{padding:7px 10px;font-size:13px} }
+@media (max-width:380px){ #syncPill{display:none} .brand-logo{height:24px} .top-right{gap:4px}
+  .icon-btn{width:32px;height:32px;border-radius:10px} .switch{padding:3px} .switch button{padding:6px 9px;font-size:12.5px} }
 
 /* ---------- Name picker ---------- */
 .picker{position:fixed;z-index:10;right:clamp(16px,2.4vw,32px);top:84px;bottom:clamp(16px,2.4vw,32px);width:min(440px,36vw);
@@ -302,7 +308,7 @@ body.admin-open #scene,body.admin-open .picker,body.admin-open .player-card,body
 <section class="admin" id="admin" hidden>
   <div class="admin-wrap">
     <div class="admin-head">
-      <div><h1>จัดการวงล้อ</h1><p>ของรางวัล อัตราการออก และการเชื่อมต่อ Google Sheet</p></div>
+      <div><h1>จัดการวงล้อ</h1><p>ของรางวัล อัตราการออก และผู้เล่น</p></div>
       <button class="btn" id="lockBtn">กลับหน้าผู้เล่น</button>
     </div>
     <nav class="tabs" role="tablist">
