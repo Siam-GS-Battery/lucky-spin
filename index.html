@@ -465,6 +465,7 @@ async function loadPlayers(silent){
   if(!silent) setSync('loading');
   try{
     const r = await fetch(`${ENV.proxy ? 'api/players' : S.scriptUrl.trim()}?sheet=${encodeURIComponent(S.sheetName)}&t=${Date.now()}`);
+    if(r.status === 401){ toLogin(); return false; }
     const d = await r.json();
     if(!d.ok) throw new Error(d.reason || 'Apps Script ตอบกลับผิดพลาด');
     const low = d.headers.map(h=>norm(h)); colMap = {};
@@ -496,9 +497,11 @@ function scheduleRefresh(){
   clearInterval(refreshTimer);
   if(S.autoRefresh && !S.demo && (ENV.proxy || S.scriptUrl)) refreshTimer = setInterval(()=>{ if(!spinning && state!=='reveal') loadPlayers(true); }, 20000);
 }
+// Session (4 h) expired: back to the login page. Queued results are sent after the next successful load.
+function toLogin(){ location.href = '/login?e=expired&next=' + encodeURIComponent(location.pathname + location.search); }
 async function post(body){
   const r = await fetch(ENV.proxy ? 'api/post' : S.scriptUrl.trim(), {method:'POST', body:JSON.stringify(Object.assign({sheet:S.sheetName}, body))});
-  if(r.status === 502) throw new Error('offline'); // server could not reach Apps Script: queue and retry
+  if(r.status === 502 || r.status === 401) throw new Error('offline'); // Apps Script unreachable or session expired: queue and retry after login
   return r.json();
 }
 async function recordResult(p, prize){

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>เข้าสู่ระบบ — Lucky Draw</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#04102E; --blue:#1E5BFF; --sky:#7FA8FF; --ice:#E6EEFF; --white:#FFFFFF;
+  --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.16); --muted:rgba(222,232,255,.6); --danger:#FF5C7A;
+  --display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+:focus-visible{outline:2px solid var(--sky);outline-offset:3px}
+body{min-height:100vh;display:grid;place-items:center;padding:24px 16px;font-family:var(--body);color:var(--white);-webkit-font-smoothing:antialiased;
+  background:radial-gradient(60% 55% at 50% 0%,rgba(30,91,255,.28),transparent 70%),#000}
+form{width:100%;max-width:380px;padding:32px 28px;border-radius:24px;border:1px solid var(--line);background:rgba(4,16,46,.45);
+  backdrop-filter:blur(26px) saturate(140%);-webkit-backdrop-filter:blur(26px) saturate(140%)}
+h1{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:.2px}
+p{color:var(--muted);font-size:14px;margin:6px 0 24px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+label{font-size:13px;color:var(--ice)}
+.input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line-2);background:rgba(0,0,0,.45);color:inherit;font:inherit;outline:none;transition:border-color .2s,box-shadow .2s}
+.input:focus{border-color:var(--sky);box-shadow:0 0 0 4px rgba(30,91,255,.2)}
+.btn{width:100%;margin-top:8px;padding:12px 18px;border-radius:12px;border:1px solid #fff;background:#fff;color:#000;font:600 16px var(--display);cursor:pointer;transition:background .2s}
+.btn:hover{background:var(--ice)}
+.msg{font-size:14px;min-height:20px;margin-top:12px;color:var(--danger)}
+</style>
+</head>
+<body>
+<form method="post" action="/login">
+  <h1>Lucky Draw</h1>
+  <p>เข้าสู่ระบบเพื่อเปิดวงล้อ</p>
+  <div class="field"><label for="u">ชื่อผู้ใช้</label><input class="input" id="u" name="username" autocomplete="username" required autofocus></div>
+  <div class="field"><label for="p">รหัสผ่าน</label><input class="input" id="p" name="password" type="password" autocomplete="current-password" required></div>
+  <input type="hidden" name="next" id="next">
+  <button class="btn" type="submit">เข้าสู่ระบบ</button>
+  <div class="msg" id="msg" role="alert"></div>
+</form>
+<script>
+const q = new URLSearchParams(location.search);
+document.getElementById('next').value = q.get('next') || '/';
+document.getElementById('msg').textContent =
+  q.get('e') === 'bad' ? 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' :
+  q.get('e') === 'locked' ? 'ลองผิดหลายครั้งเกินไป รอ 15 นาทีแล้วลองใหม่' :
+  q.get('e') === 'expired' ? 'หมดเวลาใช้งาน 4 ชั่วโมง กรุณาเข้าสู่ระบบใหม่' : '';
+</script>
+</body>
+</html>
