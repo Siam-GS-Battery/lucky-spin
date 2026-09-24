@@ -307,7 +307,6 @@ body.admin-open #scene,body.admin-open .picker,body.admin-open .player-card,body
     <nav class="tabs" role="tablist">
       <button role="tab" aria-selected="true" data-tab="prizes">ของรางวัลและเรท</button>
       <button role="tab" aria-selected="false" data-tab="people">ผู้เล่น</button>
-      <button role="tab" aria-selected="false" data-tab="connect">เชื่อมต่อ Google Sheet</button>
       <button role="tab" aria-selected="false" data-tab="settings">ตั้งค่า</button>
     </nav>
 
@@ -343,30 +342,6 @@ body.admin-open #scene,body.admin-open .picker,body.admin-open .player-card,body
       </table></div>
     </section>
 
-    <section class="tabpanel" id="tab-connect">
-      <div class="grid2">
-        <div class="card">
-          <h2>Apps Script</h2>
-          <p class="hint">หน้านี้อ่านรายชื่อและเขียนผล played กับรางวัลกลับลง Google Sheet ผ่าน Apps Script ของชีตนั้น</p>
-          <div class="field"><label for="scriptUrl">Web App URL</label><input class="input" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec"></div>
-          <div class="field"><label for="sheetName">ชื่อแท็บ (เว้นว่าง = แท็บแรก)</label><input class="input" id="sheetName" placeholder="Sheet1"></div>
-          <div class="row"><button class="btn primary" id="connectBtn">เชื่อมต่อและโหลดรายชื่อ</button><button class="btn ghost" id="demoBtn" style="flex:0 0 auto">ใช้ข้อมูลทดลอง</button></div>
-          <p class="msg" id="connectMsg"></p>
-          <div class="setting" style="margin-top:8px"><div><div class="t">รีเฟรชอัตโนมัติ</div><div class="d">ดึงรายชื่อใหม่ทุก 20 วินาที</div></div><label class="toggle"><input type="checkbox" id="autoRefresh"><span></span></label></div>
-        </div>
-        <div class="card">
-          <h2>คอลัมน์ที่ต้องมีในแถวแรก</h2>
-          <div class="cols" id="colStatus"></div>
-          <ol class="steps">
-            <li>เปิด Google Sheet เลือก <code>ส่วนขยาย › Apps Script</code></li>
-            <li>วางโค้ดจากไฟล์ <code>Code.gs</code> แล้วบันทึก</li>
-            <li><code>ทำให้ใช้งานได้ › การทำให้ใช้งานได้รายการใหม่ › เว็บแอป</code></li>
-            <li>ตั้ง "เรียกใช้ในฐานะ" เป็นตัวคุณ และ "ผู้มีสิทธิ์เข้าถึง" เป็นทุกคน</li>
-            <li>คัดลอก URL ที่ลงท้าย <code>/exec</code> มาวางด้านซ้าย</li>
-          </ol>
-        </div>
-      </div>
-    </section>
 
     <section class="tabpanel" id="tab-settings">
       <div class="grid2">
@@ -450,7 +425,6 @@ function save(){ try{ localStorage.setItem(KEY, JSON.stringify({S, pending, demo
 /* ================= Players ================= */
 let players = [], source = 'demo', colMap = {}, booth = '', state = 'select', selected = null, spinning = false, rot = 0, refreshTimer = null, adminUnlocked = false;
 const COLS = {id:['id'], booth:['booth','บูธ'], name:['ชื่อ','name','ข้อมูลติดต่อ'], company:['บริษัท','company'], feedback:['feedback','ข้อเสนอแนะเพิ่มเติม'], played:['played'], prize:['รางวัล','prize']};
-const COL_LABEL = {id:'id', booth:'Booth', name:'ชื่อ', company:'บริษัท', feedback:'Feedback', played:'played', prize:'รางวัล'};
 function makeDemo(){
   const d=[['ณัฐวุฒิ ศรีสุข','สยามเทค โซลูชั่น','A1'],['พิมพ์ชนก วงศ์ใหญ่','ไทยพาวเวอร์ ซิสเต็มส์','A1'],['ธนกร แก้วมณี','อีสเทิร์น มอเตอร์','A2'],['ศิริพร ทองดี','บางกอก ลอจิสติกส์','A2'],['กิตติพัฒน์ ใจงาม','กรีนเอนเนอร์ยี่ ไทย','B1'],['อรอุมา เพชรรัตน์','เมโทร ออโต้พาร์ท','B1'],['ปวริศ บุญมา','ไทยสมาร์ท แฟคทอรี่','B2'],['ชุติมา สายทอง','สยามเทค โซลูชั่น','B2'],['วรเมธ อินทร์แก้ว','เจริญผล อินดัสทรี','C1'],['ภัทรา จันทร์หอม','อีวี คอนเนกต์','C1'],['สุรเชษฐ์ มั่นคง','ไทยพาวเวอร์ ซิสเต็มส์','C2'],['นภัสสร รุ่งเรือง','บางกอก ลอจิสติกส์','C2']];
   return d.map(([name,company,b],i)=>({row:i+2, id:'P'+String(i+1).padStart(3,'0'), booth:b, name, company, feedback:'', played:false, prize:''}));
@@ -480,14 +454,14 @@ async function loadPlayers(silent){
     return true;
   }catch(err){
     setSync('err');
-    if(!silent){ toast('โหลดรายชื่อไม่สำเร็จ: '+err.message); const m=$('#connectMsg'); m.className='msg err'; m.textContent='เชื่อมต่อไม่สำเร็จ: '+err.message+' ตรวจ URL และสิทธิ์ "ทุกคน" ของเว็บแอป'; }
+    if(!silent){ toast('โหลดรายชื่อไม่สำเร็จ: '+err.message); }
     return false;
   }
 }
 function afterLoad(){
   if(selected){ const p = players.find(x=>x.id===selected.id); if(p) selected = p; if(p?.played && state==='ready'){ toast(`${p.name} หมุนไปแล้วจากเครื่องอื่น`); backToSelect(); } }
   renderBooths(); renderList(); paintTexture(); refreshHub();
-  if(!$('#admin').hidden){ renderPrizes(); renderPeople(); renderColStatus(); }
+  if(!$('#admin').hidden){ renderPrizes(); renderPeople(); }
 }
 function setSync(s){
   $('#syncDot').className = 'dot' + (s==='ok'?' ok':s==='err'?' err':'');
@@ -936,20 +910,16 @@ function renderPeople(){
     <td>${p.played?`<button class="btn sm ghost" data-reset="${esc(p.id)}">ให้หมุนใหม่</button>`:''}</td></tr>`).join('')
     : '<tr><td colspan="8" style="color:var(--muted)">ยังไม่มีรายชื่อ เชื่อมต่อ Google Sheet ในแท็บ "เชื่อมต่อ Google Sheet"</td></tr>';
 }
-function renderColStatus(){
-  $('#colStatus').innerHTML=Object.keys(COLS).map(k=>{ const ok=source==='demo'||colMap[k]>=0; return `<span class="tag ${ok?'ok':'bad'}">${ok?'✓':'✕'} ${COL_LABEL[k]}</span>`; }).join('');
-}
 function renderSettings(){
   $('#titleInput').value=S.title; $('#subInput').value=S.sub; $('#showPlayed').checked=S.showPlayed;
   $('#duration').value=S.duration; $('#durLabel').textContent=`${S.duration} วินาที`;
-  $('#scriptUrl').value=S.scriptUrl; $('#sheetName').value=S.sheetName; $('#autoRefresh').checked=S.autoRefresh;
 }
 function applyTitles(){ $('#brandTitle').textContent=S.title; $('#brandSub').textContent=S.sub; document.title=`${S.title} วงล้อนำโชค`; }
 function download(name,content,type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500); }
 function openAdmin(){
   $('#admin').hidden=false; document.body.classList.add('admin-open');
   $('#modeUser').setAttribute('aria-pressed','false'); $('#modeAdmin').setAttribute('aria-pressed','true');
-  renderPrizes(); renderPeople(); renderSettings(); renderColStatus();
+  renderPrizes(); renderPeople(); renderSettings();
 }
 function closeAdmin(){
   $('#admin').hidden=true; document.body.classList.remove('admin-open');
@@ -987,15 +957,6 @@ $('#peopleRows').addEventListener('click',async e=>{
   try{ const d=await post({action:'reset',id}); if(!d.ok) throw new Error(d.reason); await loadPlayers(true); toast('รีเซ็ตใน Google Sheet แล้ว'); }catch(err){ toast('รีเซ็ตไม่สำเร็จ: '+err.message); }
 });
 $('#exportBtn').onclick=()=>{ const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"'; const csv=[['id','Booth','ชื่อ','บริษัท','Feedback','played','รางวัล']].concat(players.map(p=>[p.id,p.booth,p.name,p.company,p.feedback,p.played?'yes':'',p.prize])).map(r=>r.map(q).join(',')).join('\r\n'); download(`lucky-draw-results-${Date.now()}.csv`,'\uFEFF'+csv,'text/csv;charset=utf-8'); };
-$('#connectBtn').onclick=async()=>{
-  S.scriptUrl=$('#scriptUrl').value.trim(); S.sheetName=$('#sheetName').value.trim();
-  const m=$('#connectMsg'); if(!ENV.proxy && !/^https:\/\/script\.google(usercontent)?\.com\//.test(S.scriptUrl)){ m.className='msg err'; m.textContent='ใส่ Web App URL ของ Apps Script ที่ขึ้นต้นด้วย https://script.google.com/'; return; }
-  S.demo=false; save(); m.className='msg'; m.textContent='กำลังเชื่อมต่อ';
-  if(await loadPlayers()){ m.className='msg ok'; m.textContent=`เชื่อมต่อแล้ว พบรายชื่อ ${players.length} คน`; renderColStatus(); }
-  scheduleRefresh();
-};
-$('#demoBtn').onclick=()=>{ S.demo=true; save(); loadPlayers(); scheduleRefresh(); const m=$('#connectMsg'); m.className='msg'; m.textContent='กำลังใช้ข้อมูลทดลอง 12 คน'; renderColStatus(); };
-$('#autoRefresh').onchange=e=>{ S.autoRefresh=e.target.checked; save(); scheduleRefresh(); };
 $('#titleInput').oninput=e=>{ S.title=e.target.value; save(); applyTitles(); };
 $('#subInput').oninput=e=>{ S.sub=e.target.value; save(); applyTitles(); };
 $('#showPlayed').onchange=e=>{ S.showPlayed=e.target.checked; save(); renderList(); };
