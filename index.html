@@ -6,14 +6,14 @@
 <title>Lucky Draw — วงล้อนำโชค</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --black:#000000; --navy:#04102E; --blue:#1E5BFF; --sky:#7FA8FF; --ice:#E6EEFF; --white:#FFFFFF;
   --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.16);
   --muted:rgba(222,232,255,.6); --ok:#43E2A6; --danger:#FF5C7A; --warn:#FFC45C;
-  --display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
-  --body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:"IBM Plex Sans","IBM Plex Sans Thai",system-ui,sans-serif;
+  --body:"IBM Plex Sans","IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
   --ease:cubic-bezier(.2,.8,.2,1);
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
@@ -533,7 +533,7 @@ function buildSegments(){
   syncPegs();
 }
 function fitText(ctx,text,maxW,start,min){
-  const f=s=>`700 ${s}px "Bai Jamjuree","IBM Plex Sans Thai",sans-serif`;
+  const f=s=>`700 ${s}px "IBM Plex Sans","IBM Plex Sans Thai",sans-serif`;
   let fs=start; ctx.font=f(fs);
   while(ctx.measureText(text).width>maxW && fs>min){ fs-=2; ctx.font=f(fs); }
   let t=text; if(ctx.measureText(t).width>maxW){ while(t.length>1 && ctx.measureText(t+'…').width>maxW) t=t.slice(0,-1); t+='…'; }
