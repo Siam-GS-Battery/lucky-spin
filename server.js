@@ -33,7 +33,8 @@ const safeEqual = (a, b) => { // constant time, length-independent
   return crypto.timingSafeEqual(x, y);
 };
 const cookies = req => Object.fromEntries((req.headers.cookie || '').split(';').map(c => c.trim().split('=')).filter(([k]) => k).map(([k, ...v]) => [k, v.join('=')]));
-const safeNext = n => (typeof n === 'string' && /^\/(?![\/\\])/.test(n) && !n.startsWith('/login') ? n : '/');
+// Booth -> Sheet tab. Must match BOOTHS in index.html. The booth is locked in the session.
+const BOOTH_SHEETS = { A: 'Auto Feedback', B: 'Sopify Feedback' };
 
 function createApp({ scriptUrl = '', token = '', username = 'booth', password = '', jwtSecret = '', fetchFn = fetch, now = Date.now } = {}) {
   if (scriptUrl && !/^https:\/\/script\.google\.com\//.test(scriptUrl)) throw new Error('SCRIPT_GOOGLE_SHEET must start with https://script.google.com/');
@@ -67,45 +68,52 @@ function createApp({ scriptUrl = '', token = '', username = 'booth', password = 
     const ip = ipOf(req), f = fails.get(ip);
     if (f && f.until > now()) return redirect(res, '/login?e=locked');
     const form = new URLSearchParams(await readBody(req));
-    const next = safeNext(form.get('next'));
+    const booth = String(form.get('booth') || '').toUpperCase();
+    if (!BOOTH_SHEETS[booth]) return redirect(res, '/login?e=booth');
     const ok = safeEqual(form.get('username') || '', username) & safeEqual(form.get('password') || '', password); // & not &&: always compare both
     if (!ok) {
       const n = (f && !f.until ? f.n : 0) + 1; // an expired lock starts the count again
       fails.set(ip, { n, until: n >= MAX_FAILS ? now() + LOCK_MS : 0 });
-      return redirect(res, '/login?e=bad&next=' + encodeURIComponent(next));
+      return redirect(res, '/login?e=bad&booth=' + booth);
     }
     fails.delete(ip);
     const iat = Math.floor(now() / 1000);
-    const jwt = signJwt({ sub: username, iat, exp: iat + SESSION_SECONDS }, secret);
-    return redirect(res, next, { 'Set-Cookie': cookie(req, jwt, SESSION_SECONDS) });
+    const jwt = signJwt({ sub: username, booth, iat, exp: iat + SESSION_SECONDS }, secret);
+    return redirect(res, '/?booth=' + booth, { 'Set-Cookie': cookie(req, jwt, SESSION_SECONDS) });
   }
 
   return async (req, res) => {
     const url = new URL(req.url, 'http://x');
+    let sheet = null; // set from the session when login is on
     try {
       if (url.pathname === '/healthz') return send(res, 200, 'ok', 'text/plain');
       if (authOn) {
-        if (url.pathname === '/login' && req.method === 'GET') return send(res, 200, loginHtml, 'text/html; charset=utf-8');
-        if (url.pathname === '/login' && req.method === 'POST') return await login(req, res);
         if (url.pathname === '/logout') return redirect(res, '/login', { 'Set-Cookie': cookie(req, '', 0) });
         const raw = cookies(req)[COOKIE];
-        if (!verifyJwt(raw, secret, Math.floor(now() / 1000))) {
+        const claims = verifyJwt(raw, secret, Math.floor(now() / 1000));
+        const valid = claims && BOOTH_SHEETS[claims.booth];
+        if (url.pathname === '/login' && req.method === 'POST') return await login(req, res);
+        if (url.pathname === '/login' && !valid) return send(res, 200, loginHtml, 'text/html; charset=utf-8');
+        if (!valid) {
           if (url.pathname.startsWith('/api/')) return send(res, 401, '{"ok":false,"reason":"session expired"}');
-          return redirect(res, '/login?next=' + encodeURIComponent(url.pathname + url.search) + (raw ? '&e=expired' : ''));
+          return redirect(res, '/login' + (raw ? '?e=expired' : ''));
         }
+        // Any page other than the booth's own goes back to it; the API only touches the booth's tab.
+        if (!url.pathname.startsWith('/api/') && (url.pathname !== '/' || url.search !== '?booth=' + claims.booth)) return redirect(res, '/?booth=' + claims.booth);
+        if (url.pathname.startsWith('/api/')) sheet = BOOTH_SHEETS[claims.booth];
       }
 
       if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/index.html')) return send(res, 200, html, 'text/html; charset=utf-8');
       if (!scriptUrl || !url.pathname.startsWith('/api/')) return send(res, 404, 'Not found', 'text/plain');
 
       if (req.method === 'GET' && url.pathname === '/api/players') {
-        const q = new URLSearchParams({ sheet: url.searchParams.get('sheet') || '', token, t: now() });
+        const q = new URLSearchParams({ sheet: sheet ?? (url.searchParams.get('sheet') || ''), token, t: now() });
         return send(res, 200, await upstream(scriptUrl + '?' + q));
       }
       if (req.method === 'POST' && url.pathname === '/api/post') {
         const body = JSON.parse(await readBody(req));
         if (!['play', 'reset'].includes(body.action)) return send(res, 400, '{"ok":false,"reason":"action ไม่ถูกต้อง"}');
-        return send(res, 200, await upstream(scriptUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ ...body, token }) }));
+        return send(res, 200, await upstream(scriptUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ ...body, sheet: sheet ?? body.sheet, token }) }));
       }
       return send(res, 404, 'Not found', 'text/plain');
     } catch (err) {

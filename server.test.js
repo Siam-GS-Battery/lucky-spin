@@ -41,23 +41,27 @@ test('upstream failure returns 502 so the page queues the result', async () => {
   s.close();
 });
 
+const opt = { redirect: 'manual' };
+const loginAs = (s, booth, p = 'pw', u = 'booth') =>
+  fetch(s.base + '/login', { ...opt, method: 'POST', body: new URLSearchParams({ username: u, password: p, ...(booth ? { booth } : {}) }) });
+
 test('login issues a 4 h JWT cookie and guards the app', async () => {
   let t = Date.parse('2026-10-01T12:00:00Z');
   const s = await start({ password: 'pw', jwtSecret: 'sec', now: () => t });
-  const opt = { redirect: 'manual' };
   const r0 = await fetch(s.base + '/?booth=A', opt);
   assert.equal(r0.status, 303);
-  assert.equal(r0.headers.get('location'), '/login?next=%2F%3Fbooth%3DA');
+  assert.equal(r0.headers.get('location'), '/login');
   assert.equal((await fetch(s.base + '/api/players', opt)).status, 401);
   assert.equal((await fetch(s.base + '/healthz', opt)).status, 200);
   assert.equal((await fetch(s.base + '/login', opt)).status, 200);
 
-  const form = (u, p, next = '/?booth=A') => fetch(s.base + '/login', { ...opt, method: 'POST', body: new URLSearchParams({ username: u, password: p, next }) });
-  const bad = await form('booth', 'nope');
-  assert.match(bad.headers.get('location'), /^\/login\?e=bad/);
+  const bad = await loginAs(s, 'A', 'nope');
+  assert.equal(bad.headers.get('location'), '/login?e=bad&booth=A');
   assert.equal(bad.headers.get('set-cookie'), null);
+  assert.equal((await loginAs(s, '')).headers.get('location'), '/login?e=booth');
+  assert.equal((await loginAs(s, 'Z')).headers.get('location'), '/login?e=booth');
 
-  const ok = await form('booth', 'pw');
+  const ok = await loginAs(s, 'A');
   assert.equal(ok.headers.get('location'), '/?booth=A');
   const setCookie = ok.headers.get('set-cookie');
   assert.match(setCookie, /HttpOnly; SameSite=Strict; Max-Age=14400/);
@@ -70,21 +74,31 @@ test('login issues a 4 h JWT cookie and guards the app', async () => {
 
   t += 4 * 3600 * 1000; // exactly 4 h later: expired
   const exp = await fetch(s.base + '/', { ...opt, headers: { cookie } });
-  assert.match(exp.headers.get('location'), /e=expired/);
+  assert.equal(exp.headers.get('location'), '/login?e=expired');
   assert.equal((await fetch(s.base + '/api/players', { headers: { cookie } })).status, 401);
   s.close();
 });
 
-test('open redirect blocked and repeated failures lock out', async () => {
+test('session is locked to its booth: pages redirect, API uses the booth tab', async () => {
   const s = await start({ password: 'pw', jwtSecret: 'sec' });
-  const opt = { redirect: 'manual', method: 'POST' };
-  const ok = await fetch(s.base + '/login', { ...opt, body: new URLSearchParams({ username: 'booth', password: 'pw', next: '//evil.com' }) });
-  assert.equal(ok.headers.get('location'), '/');
-  const bs = await fetch(s.base + '/login', { ...opt, body: new URLSearchParams({ username: 'booth', password: 'pw', next: '/\\evil.com' }) });
-  assert.equal(bs.headers.get('location'), '/');
-  for (let i = 0; i < 10; i++) await fetch(s.base + '/login', { ...opt, body: new URLSearchParams({ username: 'x', password: 'y' }) });
-  const locked = await fetch(s.base + '/login', { ...opt, body: new URLSearchParams({ username: 'booth', password: 'pw' }) });
-  assert.equal(locked.headers.get('location'), '/login?e=locked');
+  const cookie = (await loginAs(s, 'B')).headers.get('set-cookie').split(';')[0];
+  const go = async p => (await fetch(s.base + p, { ...opt, headers: { cookie } })).headers.get('location');
+  for (const p of ['/', '/?booth=A', '/?booth=b', '/index.html', '/anything', '/login', '/?booth=B&x=1']) assert.equal(await go(p), '/?booth=B', p);
+  assert.equal((await fetch(s.base + '/?booth=B', { ...opt, headers: { cookie } })).status, 200);
+
+  await fetch(s.base + '/api/players?sheet=Auto%20Feedback', { headers: { cookie } });
+  assert.equal(new URL(s.calls[0].url).searchParams.get('sheet'), 'Sopify Feedback');
+  await fetch(s.base + '/api/post', { method: 'POST', headers: { cookie }, body: JSON.stringify({ action: 'reset', sheet: 'Auto Feedback', id: 'row-2' }) });
+  assert.equal(JSON.parse(s.calls[1].init.body).sheet, 'Sopify Feedback');
+
+  assert.equal(await go('/logout'), '/login');
+  s.close();
+});
+
+test('repeated failures lock out', async () => {
+  const s = await start({ password: 'pw', jwtSecret: 'sec' });
+  for (let i = 0; i < 10; i++) await loginAs(s, 'A', 'wrong');
+  assert.equal((await loginAs(s, 'A')).headers.get('location'), '/login?e=locked');
   s.close();
 });
 
