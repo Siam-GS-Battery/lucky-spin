@@ -397,10 +397,10 @@ function avStyle(key){ let h=0; for(const c of String(key)) h=(h*31+c.charCodeAt
 // Filled by server.js: proxy=true means Google Sheet calls go through /api on the server. Empty when the file is opened directly.
 const ENV = /*LUCKY_ENV*/{};
 // Booth presets from PLAN.md. Open with ?booth=A or ?booth=B.
-// cap = cumulative quota released at each time of day (HH:MM); stock = total for the booth.
+// stock = total for the booth.
 const BOOTHS = {
-  A: {sheetName:'Auto Feedback',   sub:'Auto Pre-Inspection Camera', bags:[[ '00:00',2],['14:00',4],['15:00',6],['16:00',8]]},
-  B: {sheetName:'Sopify Feedback', sub:'Sopify',                     bags:[[ '00:00',2],['14:00',4],['15:00',6],['16:00',7]]}
+  A: {sheetName:'Auto Feedback',   sub:'Auto Pre-Inspection Camera', bags:8},
+  B: {sheetName:'Sopify Feedback', sub:'Sopify',                     bags:7}
 };
 const BOOTH_KEY = (new URLSearchParams(location.search).get('booth') || '').toUpperCase();
 const BOOTH = BOOTHS[BOOTH_KEY];
@@ -409,9 +409,9 @@ const defaults = () => ({
   title:'GS Battery AI Showcase', sub:BOOTH?.sub || 'งานแสดงสินค้า 2026', scriptUrl:'', sheetName:BOOTH?.sheetName || '', demo:!ENV.proxy, autoRefresh:true,
   duration:7, pin:'1234', sound:true, showPlayed:true,
   prizes:[
-    {id:uid(), name:'กระบอกน้ำ',         color:'#FFFFFF', rate:2.5,  stock:3,  cap:[['00:00',1],['14:00',2],['15:00',3]], enabled:true, win:true},
-    {id:uid(), name:'กระเป๋าผ้า',         color:'#1E5BFF', rate:5,    stock:(BOOTH?.bags || BOOTHS.A.bags).at(-1)[1], cap:BOOTH?.bags || BOOTHS.A.bags, enabled:true, win:true},
-    {id:uid(), name:'ผ้าเย็น',            color:'#04102E', rate:92.5, stock:80, cap:[['00:00',23],['14:00',46],['15:00',69],['16:00',80]], enabled:true, win:true}
+    {id:uid(), name:'กระบอกน้ำ',         color:'#FFFFFF', rate:2.5,  stock:3,  enabled:true, win:true},
+    {id:uid(), name:'กระเป๋าผ้า',         color:'#1E5BFF', rate:5,    stock:BOOTH?.bags ?? 8, enabled:true, win:true},
+    {id:uid(), name:'ผ้าเย็น',            color:'#04102E', rate:92.5, stock:80, enabled:true, win:true}
   ]
 });
 let saved = null; try{ saved = JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
@@ -499,9 +499,7 @@ async function flushPending(){
 
 /* ================= Prize logic ================= */
 const given = p => players.filter(x=>x.played && x.prize===p.name).length;
-// Hourly quota: the cap of the latest time slot already reached today. No cap = no hourly limit.
-const capNow = p => { if(!p.cap) return Infinity; const t = new Date().toTimeString().slice(0,5); let c = 0; for(const [h,n] of p.cap) if(t >= h) c = n; return c; };
-const inStock = p => given(p) < Math.min(p.stock==null || p.stock==='' ? Infinity : Number(p.stock), capNow(p));
+const inStock = p => p.stock==null || p.stock==='' || given(p) < Number(p.stock);
 const available = () => S.prizes.filter(p=>p.enabled && Number(p.rate)>0 && inStock(p));
 function pickPrize(){
   const av = available(), tot = av.reduce((a,p)=>a+Number(p.rate),0);
