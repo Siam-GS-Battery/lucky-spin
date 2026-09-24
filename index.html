@@ -52,6 +52,7 @@ button{cursor:pointer}
 .dot.ok{background:var(--ok);box-shadow:0 0 10px var(--ok)} .dot.err{background:var(--danger);box-shadow:0 0 10px var(--danger)}
 .icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:rgba(4,16,46,.45);display:grid;place-items:center;color:var(--ice);backdrop-filter:blur(12px)}
 .icon-btn:hover{border-color:var(--line-2);color:#fff}
+.icon-btn[hidden]{display:none}
 .switch{display:flex;padding:4px;border-radius:999px;background:rgba(4,16,46,.5);border:1px solid var(--line);backdrop-filter:blur(12px)}
 .switch button{border:0;background:transparent;padding:8px 16px;border-radius:999px;font-weight:600;font-size:14px;color:var(--muted);transition:background .25s,color .25s}
 .switch button[aria-pressed="true"]{background:var(--white);color:var(--black)}
@@ -253,6 +254,7 @@ body.admin-open #scene,body.admin-open .picker,body.admin-open .player-card,body
   <div class="top-right">
     <span class="pill" id="syncPill"><i class="dot" id="syncDot"></i><span class="txt" id="syncText">กำลังโหลด</span></span>
     <button class="icon-btn" id="soundBtn" aria-label="เปิดหรือปิดเสียง"></button>
+    <button class="icon-btn" id="logoutBtn" aria-label="ออกจากระบบเพื่อเปลี่ยนบูธ" title="ออกจากระบบ / เปลี่ยนบูธ" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg></button>
     <div class="switch" role="group" aria-label="โหมด">
       <button id="modeUser" aria-pressed="true">ผู้เล่น</button>
       <button id="modeAdmin" aria-pressed="false">แอดมิน</button>
@@ -302,7 +304,7 @@ body.admin-open #scene,body.admin-open .picker,body.admin-open .player-card,body
   <div class="admin-wrap">
     <div class="admin-head">
       <div><h1>จัดการวงล้อ</h1><p>ของรางวัล อัตราการออก และการเชื่อมต่อ Google Sheet</p></div>
-      <div class="row"><button class="btn danger" id="logoutBtn" hidden>ออกจากระบบ</button><button class="btn" id="lockBtn">ล็อกแล้วกลับหน้าผู้เล่น</button></div>
+      <button class="btn" id="lockBtn">ล็อกแล้วกลับหน้าผู้เล่น</button>
     </div>
     <nav class="tabs" role="tablist">
       <button role="tab" aria-selected="true" data-tab="prizes">ของรางวัลและเรท</button>
@@ -944,7 +946,7 @@ $('#pinOk').onclick=tryPin; $('#pinCancel').onclick=()=>$('#pinModal').classList
 $('#pinInput').addEventListener('keydown',e=>{ if(e.key==='Enter') tryPin(); if(e.key==='Escape') $('#pinModal').classList.remove('open'); });
 $('#lockBtn').onclick=()=>{ adminUnlocked=false; closeAdmin(); };
 $('#logoutBtn').hidden = !ENV.auth;
-$('#logoutBtn').onclick=()=>{ if(spinning || !confirm('ออกจากระบบ? ต้อง login และเลือกบูธใหม่')) return; location.href='/logout'; };
+$('#logoutBtn').onclick=()=>{ if(spinning || state==='reveal' || !confirm('ออกจากระบบเพื่อเปลี่ยนบูธ? ต้อง login และเลือกบูธใหม่')) return; location.href='/logout'; };
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{ document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b)); document.querySelectorAll('.tabpanel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+b.dataset.tab)); });
 ['input','change','click'].forEach(ev=>$('#prizeRows').addEventListener(ev,onPrizeEdit));
 $('#addPrizeBtn').onclick=()=>{ const pal=['#1E5BFF','#04102E','#FFFFFF','#000000','#7FA8FF','#12307F','#C9DAFF']; S.prizes.push({id:uid(),name:'ของรางวัลใหม่',color:pal[S.prizes.length%pal.length],rate:5,stock:null,enabled:true,win:true}); commit(true); const l=document.querySelector('#prizeRows tr:last-child input[data-k="name"]'); l?.focus(); l?.select(); };
