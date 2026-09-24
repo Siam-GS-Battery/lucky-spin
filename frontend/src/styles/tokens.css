@@ -1,0 +1,25 @@
+/*
+ * Design tokens — approved exception to SOP brand colors: the app keeps the prototype's dark design.
+ * Every value below is copied verbatim from lucky-spin/index.html :root. Do not add or change tokens.
+ * Tailwind default palettes are cleared so only these colors exist as utilities (bg-navy, text-muted, ...).
+ */
+@theme {
+  --color-*: initial;
+  --color-black: #000000;
+  --color-navy: #04102E;
+  --color-blue: #1E5BFF;
+  --color-sky: #7FA8FF;
+  --color-ice: #E6EEFF;
+  --color-white: #FFFFFF;
+  --color-line: rgba(255,255,255,.09);
+  --color-line-2: rgba(255,255,255,.16);
+  --color-muted: rgba(222,232,255,.6);
+  --color-ok: #43E2A6;
+  --color-danger: #FF5C7A;
+  --color-warn: #FFC45C;
+
+  --font-display: "Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --font-body: "IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+
+  --ease-brand: cubic-bezier(.2,.8,.2,1);
+}

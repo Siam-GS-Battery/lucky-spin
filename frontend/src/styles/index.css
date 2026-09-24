@@ -1,0 +1,39 @@
+@import 'tailwindcss';
+@import './tokens.css';
+@import './keyframes.css';
+
+/* Global base rules from the prototype (same values). */
+@layer base {
+  :root {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html,
+  body {
+    margin: 0;
+    height: 100%;
+  }
+  body {
+    font-family: var(--font-body);
+    color: var(--color-white);
+    background: #000;
+    -webkit-font-smoothing: antialiased;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+  button {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-sky);
+    outline-offset: 3px;
+  }
+  [hidden] {
+    display: none !important;
+  }
+}

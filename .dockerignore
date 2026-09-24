@@ -1,4 +1,13 @@
+**/node_modules
+**/dist
+**/coverage
+**/*.tsbuildinfo
 .env
+.env.*
+!.env.example
 .git
-node_modules
-*.test.js
+.gitignore
+.DS_Store
+.claude
+docs
+*.md

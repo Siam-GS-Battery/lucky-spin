@@ -1,0 +1,6 @@
+dist
+coverage
+node_modules
+# Byte-identical copies of prototype values; formatting must not change them.
+src/styles/tokens.css
+src/styles/keyframes.css
