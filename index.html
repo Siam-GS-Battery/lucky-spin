@@ -730,6 +730,7 @@ function loop(now){
     if(flash) v=Math.floor(now/90)%2?.1:1.5;
     else if(chase) v=(i+Math.floor(now/60))%3===0?1.5:.12;
     else if(ready) v=(i+Math.floor(now/140))%6<3?1.2:.35;
+    else if(!reduced) v=(i+Math.floor(now/110))%3===0?1.4:.2; // idle: running lights, slower than the spin chase
     else v=.7+.3*Math.sin(t*2.2+i*.52);
     b.m.emissiveIntensity=2.4*v; b.s.material.opacity=Math.min(1,.8*v);
   });
