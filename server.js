@@ -5,6 +5,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const zlib = require('zlib');
 
 const SESSION_SECONDS = 4 * 60 * 60;
 const COOKIE = 'lucky_session';
@@ -35,6 +36,11 @@ const safeEqual = (a, b) => { // constant time, length-independent
 const cookies = req => Object.fromEntries((req.headers.cookie || '').split(';').map(c => c.trim().split('=')).filter(([k]) => k).map(([k, ...v]) => [k, v.join('=')]));
 // Booth -> Sheet tab. Must match BOOTHS in index.html. The booth is locked in the session.
 const BOOTH_SHEETS = { A: 'Auto Feedback', B: 'Sopify Feedback' };
+// Booth -> presentation shown at /?booth=X. The game is at /spin?booth=X.
+const BOOTH_PAGES = { A: 'booth/AI_Inspection_Line2_Booth_4.html', B: 'booth/Sopify_Booth_4.html' };
+// Top-right button on the presentation that opens the game. #count (slide number) moves down to make room.
+const toSpin = b => `<style>#count{top:76px!important}#toSpin{position:fixed;right:24px;top:18px;z-index:99;display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(4,16,46,.6);backdrop-filter:blur(12px);color:#fff;font:600 14px system-ui,sans-serif;text-decoration:none}#toSpin:hover{background:#1E5BFF}</style>`
+  + `<a id="toSpin" href="/spin?booth=${b}" title="เปิดเกม Lucky Spin"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6 5.6 18.4"/></svg>Lucky Spin</a>`;
 
 function createApp({ scriptUrl = '', token = '', username = 'booth', password = '', jwtSecret = '', fetchFn = fetch, now = Date.now } = {}) {
   if (scriptUrl && !/^https:\/\/script\.google\.com\//.test(scriptUrl)) throw new Error('SCRIPT_GOOGLE_SHEET must start with https://script.google.com/');
@@ -43,6 +49,11 @@ function createApp({ scriptUrl = '', token = '', username = 'booth', password = 
   const env = JSON.stringify({ proxy: !!scriptUrl, auth: !!password }).replace(/</g, '\\u003c');
   const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8').replace('/*LUCKY_ENV*/{}', env);
   const loginHtml = fs.readFileSync(path.join(__dirname, 'login.html'), 'utf8');
+  // ~5 MB each (inlined fonts/images), so kept gzipped in memory: ~1.8 MB on the wire
+  const boothPages = Object.fromEntries(Object.entries(BOOTH_PAGES).map(([b, f]) => {
+    const src = fs.readFileSync(path.join(__dirname, f), 'utf8'), i = src.lastIndexOf('</body>');
+    return [b, zlib.gzipSync(src.slice(0, i) + toSpin(b) + src.slice(i))];
+  }));
   const fails = new Map(); // ip -> {n, until}   ponytail: in-memory, fine for one instance
 
   const send = (res, code, body, type = 'application/json; charset=utf-8', extra = {}) =>
@@ -99,11 +110,16 @@ function createApp({ scriptUrl = '', token = '', username = 'booth', password = 
           return redirect(res, '/login' + (raw ? '?e=expired' : ''));
         }
         // Any page other than the booth's own goes back to it; the API only touches the booth's tab.
-        if (!url.pathname.startsWith('/api/') && (url.pathname !== '/' || url.search !== '?booth=' + claims.booth)) return redirect(res, '/?booth=' + claims.booth);
+        if (!url.pathname.startsWith('/api/') && (!['/', '/spin'].includes(url.pathname) || url.search !== '?booth=' + claims.booth)) return redirect(res, '/?booth=' + claims.booth);
         if (url.pathname.startsWith('/api/')) sheet = BOOTH_SHEETS[claims.booth];
       }
 
-      if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/index.html')) return send(res, 200, html, 'text/html; charset=utf-8');
+      const page = url.pathname === '/' && boothPages[(url.searchParams.get('booth') || '').toUpperCase()];
+      if (req.method === 'GET' && page) {
+        const gz = /\bgzip\b/.test(req.headers['accept-encoding'] || '');
+        return send(res, 200, gz ? page : zlib.gunzipSync(page), 'text/html; charset=utf-8', gz ? { 'Content-Encoding': 'gzip', Vary: 'Accept-Encoding' } : { Vary: 'Accept-Encoding' });
+      }
+      if (req.method === 'GET' && ['/', '/spin', '/index.html'].includes(url.pathname)) return send(res, 200, html, 'text/html; charset=utf-8');
       if (!scriptUrl || !url.pathname.startsWith('/api/')) return send(res, 404, 'Not found', 'text/plain');
 
       if (req.method === 'GET' && url.pathname === '/api/players') {

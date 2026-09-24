@@ -16,7 +16,7 @@ async function start(opts) {
 
 test('page does not leak the Apps Script URL', async () => {
   const s = await start({});
-  const html = await (await fetch(s.base + '/?booth=A')).text();
+  const html = await (await fetch(s.base + '/spin?booth=A')).text();
   assert.ok(html.includes('const ENV = {"proxy":true,"auth":false}'));
   assert.ok(!html.includes('SECRET'));
   s.close();
@@ -83,8 +83,12 @@ test('session is locked to its booth: pages redirect, API uses the booth tab', a
   const s = await start({ password: 'pw', jwtSecret: 'sec' });
   const cookie = (await loginAs(s, 'B')).headers.get('set-cookie').split(';')[0];
   const go = async p => (await fetch(s.base + p, { ...opt, headers: { cookie } })).headers.get('location');
-  for (const p of ['/', '/?booth=A', '/?booth=b', '/index.html', '/anything', '/login', '/?booth=B&x=1']) assert.equal(await go(p), '/?booth=B', p);
-  assert.equal((await fetch(s.base + '/?booth=B', { ...opt, headers: { cookie } })).status, 200);
+  for (const p of ['/', '/?booth=A', '/?booth=b', '/index.html', '/anything', '/login', '/?booth=B&x=1', '/spin', '/spin?booth=A']) assert.equal(await go(p), '/?booth=B', p);
+  const booth = await fetch(s.base + '/?booth=B', { ...opt, headers: { cookie } });
+  assert.equal(booth.headers.get('content-encoding'), 'gzip'); // fetch unzips below
+  const boothHtml = await booth.text();
+  assert.ok(boothHtml.includes('<title>Sopify') && boothHtml.includes('href="/spin?booth=B"'));
+  assert.ok((await (await fetch(s.base + '/spin?booth=B', { ...opt, headers: { cookie } })).text()).includes('id="boothBtn"'));
 
   await fetch(s.base + '/api/players?sheet=Auto%20Feedback', { headers: { cookie } });
   assert.equal(new URL(s.calls[0].url).searchParams.get('sheet'), 'Sopify Feedback');

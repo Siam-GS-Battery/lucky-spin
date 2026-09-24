@@ -1,6 +1,7 @@
 FROM node:22-alpine
 WORKDIR /app
 COPY package.json server.js index.html login.html ./
+COPY booth ./booth
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8787
 USER node
 EXPOSE 8787

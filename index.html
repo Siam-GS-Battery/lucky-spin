@@ -256,6 +256,7 @@ body.admin-open #scene,body.admin-open .picker,body.admin-open .player-card,body
     <div class="brand-name"><span id="brandTitle">Lucky Draw</span><span class="brand-sub" id="brandSub"></span></div>
   </div>
   <div class="top-right">
+    <a class="icon-btn" id="boothBtn" aria-label="กลับไปหน้าบูธ" title="กลับไปหน้าบูธ" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></a>
     <span class="pill" id="syncPill"><i class="dot" id="syncDot"></i><span class="txt" id="syncText">กำลังโหลด</span></span>
     <button class="icon-btn" id="soundBtn" aria-label="เปิดหรือปิดเสียง"></button>
     <button class="icon-btn" id="qrBtn" aria-label="แสดง QR ลงทะเบียน" title="QR ลงทะเบียน" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg></button>
@@ -946,6 +947,8 @@ $('#modeUser').onclick=()=>{ if(!$('#admin').hidden) closeAdmin(); };
 $('#modeAdmin').onclick=()=>{ if(spinning||state==='reveal') return; openAdmin(); }; // the app login already guards admin
 $('#lockBtn').onclick=closeAdmin;
 $('#logoutBtn').hidden = !ENV.auth;
+if(BOOTHS[BOOTH_KEY]){ $('#boothBtn').hidden=false; $('#boothBtn').href='/?booth='+BOOTH_KEY; }
+$('#boothBtn').onclick=e=>{ if(spinning || state==='reveal') e.preventDefault(); };
 $('#qrBtn').hidden = !BOOTH;
 const closeQr = () => $('#qrModal').classList.remove('open');
 $('#qrBtn').onclick=()=>{ if(spinning || state==='reveal') return; $('#qrSub').textContent=`บูธ ${BOOTH_KEY} · ${BOOTH.sub}`; $('#qrImg').src=QR[BOOTH_KEY]; $('#qrLink').textContent=BOOTH.form; $('#qrModal').classList.add('open'); $('#qrClose').focus(); };
