@@ -40,7 +40,7 @@ function createApp({ scriptUrl = '', token = '', username = 'booth', password = 
   if (scriptUrl && !/^https:\/\/script\.google\.com\//.test(scriptUrl)) throw new Error('SCRIPT_GOOGLE_SHEET must start with https://script.google.com/');
   const authOn = !!password;
   const secret = jwtSecret || crypto.randomBytes(32).toString('hex'); // ponytail: random secret logs everyone out on restart, set JWT_SECRET to keep sessions
-  const env = JSON.stringify({ proxy: !!scriptUrl }).replace(/</g, '\\u003c');
+  const env = JSON.stringify({ proxy: !!scriptUrl, auth: !!password }).replace(/</g, '\\u003c');
   const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8').replace('/*LUCKY_ENV*/{}', env);
   const loginHtml = fs.readFileSync(path.join(__dirname, 'login.html'), 'utf8');
   const fails = new Map(); // ip -> {n, until}   ponytail: in-memory, fine for one instance

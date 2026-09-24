@@ -302,7 +302,7 @@ body.admin-open #scene,body.admin-open .picker,body.admin-open .player-card,body
   <div class="admin-wrap">
     <div class="admin-head">
       <div><h1>จัดการวงล้อ</h1><p>ของรางวัล อัตราการออก และการเชื่อมต่อ Google Sheet</p></div>
-      <button class="btn" id="lockBtn">ล็อกแล้วกลับหน้าผู้เล่น</button>
+      <div class="row"><button class="btn danger" id="logoutBtn" hidden>ออกจากระบบ</button><button class="btn" id="lockBtn">ล็อกแล้วกลับหน้าผู้เล่น</button></div>
     </div>
     <nav class="tabs" role="tablist">
       <button role="tab" aria-selected="true" data-tab="prizes">ของรางวัลและเรท</button>
@@ -943,6 +943,8 @@ $('#modeAdmin').onclick=()=>{ if(spinning||state==='reveal') return; if(adminUnl
 $('#pinOk').onclick=tryPin; $('#pinCancel').onclick=()=>$('#pinModal').classList.remove('open');
 $('#pinInput').addEventListener('keydown',e=>{ if(e.key==='Enter') tryPin(); if(e.key==='Escape') $('#pinModal').classList.remove('open'); });
 $('#lockBtn').onclick=()=>{ adminUnlocked=false; closeAdmin(); };
+$('#logoutBtn').hidden = !ENV.auth;
+$('#logoutBtn').onclick=()=>{ if(spinning || !confirm('ออกจากระบบ? ต้อง login และเลือกบูธใหม่')) return; location.href='/logout'; };
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{ document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b)); document.querySelectorAll('.tabpanel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+b.dataset.tab)); });
 ['input','change','click'].forEach(ev=>$('#prizeRows').addEventListener(ev,onPrizeEdit));
 $('#addPrizeBtn').onclick=()=>{ const pal=['#1E5BFF','#04102E','#FFFFFF','#000000','#7FA8FF','#12307F','#C9DAFF']; S.prizes.push({id:uid(),name:'ของรางวัลใหม่',color:pal[S.prizes.length%pal.length],rate:5,stock:null,enabled:true,win:true}); commit(true); const l=document.querySelector('#prizeRows tr:last-child input[data-k="name"]'); l?.focus(); l?.select(); };

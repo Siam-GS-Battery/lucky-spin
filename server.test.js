@@ -17,7 +17,7 @@ async function start(opts) {
 test('page does not leak the Apps Script URL', async () => {
   const s = await start({});
   const html = await (await fetch(s.base + '/?booth=A')).text();
-  assert.ok(html.includes('const ENV = {"proxy":true}'));
+  assert.ok(html.includes('const ENV = {"proxy":true,"auth":false}'));
   assert.ok(!html.includes('SECRET'));
   s.close();
 });
