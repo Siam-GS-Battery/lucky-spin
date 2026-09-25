@@ -37,7 +37,7 @@ const cookies = req => Object.fromEntries((req.headers.cookie || '').split(';').
 // Booth -> Sheet tab. Must match BOOTHS in index.html. The booth is locked in the session.
 const BOOTH_SHEETS = { A: 'Auto Feedback', B: 'Sopify Feedback' };
 // Booth -> presentation shown at /?booth=X. The game is at /spin?booth=X.
-const BOOTH_PAGES = { A: 'booth/AI_Inspection_Line2_Booth_4.html', B: 'booth/Sopify_Booth_4.html' };
+const BOOTH_PAGES = { A: 'booth/AI_Inspection_Line2_Booth_5.html', B: 'booth/Sopify_Booth_4.html' };
 // Top-right button on the presentation that opens the game. #count (slide number) moves down to make room.
 const toSpin = b => `<style>#count{top:76px!important}#toSpin{position:fixed;right:24px;top:18px;z-index:99;display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(4,16,46,.6);backdrop-filter:blur(12px);color:#fff;font:600 14px system-ui,sans-serif;text-decoration:none}#toSpin:hover{background:#1E5BFF}</style>`
   + `<a id="toSpin" href="/spin?booth=${b}" title="เปิดเกม Lucky Spin"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6 5.6 18.4"/></svg>Lucky Spin</a>`;

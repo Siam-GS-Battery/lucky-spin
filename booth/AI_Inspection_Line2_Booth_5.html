@@ -142,26 +142,21 @@ h2{font-weight:700;font-size:64px;line-height:1.06;letter-spacing:-1.5px;margin-
 .term .c{color:var(--blue2)} .term .o{color:var(--ok)}
 
 /* S5 */
-.s5 .panel{right:70px;top:64px;width:1010px;bottom:120px}
-.lanes{display:grid;grid-template-columns:1fr 1.7fr;gap:12px;margin-top:24px}
-.lanes .card{padding:14px 16px}
-.lanes .k{font-size:12px;letter-spacing:.16em;margin-bottom:10px}
-.ch{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13.5px}
-.ch span{border:1px solid var(--line);border-radius:7px;padding:5px 9px;background:#070d1e}
-.ch .a{color:var(--dim);border:0;background:none;padding:0}
-.ch .hl{border-color:var(--blue2);color:var(--ice)}
-.stg{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:12px}
-.stg .card{padding:14px;font-size:13.5px;line-height:1.45;color:var(--mute)}
-.stg .card b{font:600 11.5px var(--mono);color:var(--blue2);letter-spacing:.06em}
-.stg .card h4{font-size:18px;color:var(--ink);margin:3px 0 6px}
-.stg .card.hl{border-color:rgba(110,168,255,.55);background:linear-gradient(180deg,rgba(47,123,255,.2),rgba(10,18,38,.7))}
-.stg code{font:500 11.5px var(--mono);color:var(--ice)}
-.viz{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:12px;margin-top:12px}
-.viz .card{padding:14px 16px}
-.viz h4{font-size:15px;font-weight:600}
-.viz svg,.viz canvas{width:100%;display:block;border-radius:8px;background:#050a17;margin-top:8px}
-.mad{display:flex;height:34px;border-radius:8px;overflow:hidden;margin-top:12px}
-.mad div{display:flex;align-items:center;justify-content:center;font:600 12px var(--mono);color:#04101f}
+.s5 .panel{right:56px;top:56px;width:1250px;bottom:108px;padding:34px 40px}
+.flowcard{margin-top:16px;padding:12px 16px}
+.flowcard svg,.tech svg,.timing svg{width:100%;display:block;overflow:visible}
+.flowcard svg{margin-top:4px}
+.tech{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
+.tech .card{padding:12px 16px}
+.tech .card.hl{border-color:rgba(110,168,255,.55);background:linear-gradient(180deg,rgba(47,123,255,.18),rgba(10,18,38,.7))}
+.tt{display:flex;flex-direction:column;gap:2px;margin-bottom:6px}
+.tt b{font:600 19px var(--sans);color:var(--ink)}
+.tt span{font-size:13.5px;color:var(--mute)}
+.res{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;border-top:1px solid var(--line);padding-top:8px}
+.res span{font-size:12.5px;color:var(--mute);line-height:1.3}
+.res em{display:block;font:600 24px var(--mono);font-style:normal;color:var(--ice)}
+.timing{margin-top:12px;padding:10px 16px}
+.timing svg{margin-top:6px}
 
 /* controls */
 #ctl{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:7px;border:1px solid var(--line);
@@ -269,29 +264,20 @@ dialog img{max-width:96vw;max-height:92vh;display:block;border-radius:8px}
   <section class="slide s5" data-t="Appearance">
     <div class="panel">
       <div class="eyebrow in d1">04 · Technology — Appearance</div>
-      <h2 class="in d2" style="font-size:56px"><span class="gr">tiny-RoMa + AnomalyVFM</span></h2>
-      <p class="sub in d2" style="font-size:19px;margin-top:10px">“แบตลูกนี้ในมุมกล้องนี้ ตรงกับ master ที่ enroll ไว้หรือไม่ และถ้าไม่ตรง ต่างตรงไหน” ใช้ภาพของดีไม่กี่ภาพ (few-shot) ไม่ต้องเก็บภาพ defect</p>
-      <div class="lanes in d3">
-        <div class="card"><div class="k">ENROLL · OFFLINE</div><div class="ch"><span>Master</span><span class="a">+</span><span>≥8 good</span><span class="a">+</span><span>ROIs</span><span class="a">→</span><span class="hl">Recipe</span></div></div>
-        <div class="card"><div class="k">INSPECT · IN CYCLE</div><div class="ch"><span>Capture</span><span class="a">→</span><span>Crop</span><span class="a">→</span><span>Align</span><span class="a">→</span><span>ROI</span><span class="a">→</span><span>Logical + Structural</span><span class="a">→</span><span>MAD range</span><span class="a">→</span><span class="hl">Verdict → MQTT</span></div></div>
+      <h2 class="in d2" style="font-size:52px">Compare to good. <span class="gr">No defect training.</span></h2>
+      <p class="sub in d2" style="font-size:18px;margin-top:10px">ไม่เทรนให้รู้จัก defect — เทียบกับของดีต่อ (รุ่น, มุมกล้อง): master 1 ใบ + ของดี ≥ 8 ใบ · เพราะ NG ของระบบเก่าตรวจซ้ำแล้วพลิกเป็น OK 82%</p>
+      <div class="card flowcard in d3"><div class="ct">PIPELINE · PREPROCESS → INFERENCE → VERDICT (แย่สุดชนะ)</div><svg id="apFlow" viewBox="0 0 1180 262"></svg></div>
+      <div class="tech in d4">
+        <div class="card"><div class="tt"><b>ZNCC</b><span>ชิ้นที่อยู่นิ่ง · sticker, screen, level mark, logo</span></div><svg id="ilZncc" viewBox="0 0 360 120"></svg>
+          <div class="res"><span><em>0–0.4%</em>ของดีถูกปฏิเสธ</span><span><em>100%</em>ชิ้นหาย ถูกจับ</span></div></div>
+        <div class="card"><div class="tt"><b>Shape match</b><span>ชิ้นกลมที่หมุนได้ · vent plug, pole</span></div><svg id="ilShape" viewBox="0 0 360 120"></svg>
+          <div class="res"><span><em>0–1.2%</em>ของดีถูกปฏิเสธ</span><span><em>99–100%</em>จุก/ขั้วหาย ถูกจับ</span></div></div>
+        <div class="card hl"><div class="tt"><b>AnomalyVFM few-shot</b><span>เนื้อผิว ทุก ROI · รอยขีด คราบ จุดสี</span></div><svg id="ilVfm" viewBox="0 0 360 120"></svg>
+          <div class="res"><span><em>0.956</em>ROI AUROC</span><span><em>89%</em>ROI ที่มี defect ถูกฟ้อง</span></div></div>
       </div>
-      <div class="stg in d4">
-        <div class="card"><b>3.1</b><h4>Crop</h4>YOLO หา <code>battery</code> ที่ 640 px แล้ว crop จากภาพความละเอียดเต็ม</div>
-        <div class="card hl"><b>3.2 · tiny-RoMa</b><h4>Align</h4>dense matching เลือก 5,000 จุด fit affine ด้วย MAGSAC แล้ว warp เข้าหา master</div>
-        <div class="card"><b>3.3</b><h4>ROI</h4>ใช้กรอบเดียวกันตัดทั้ง master และ query</div>
-        <div class="card"><b>3.4</b><h4>Logical</h4><code>angle</code> <code>shear</code> <code>scale</code> <code>edge</code> <code>coverage</code> จับฉลากหายหรือเบี้ยว</div>
-        <div class="card hl"><b>3.5 · AnomalyVFM</b><h4>Structural</h4>block 48×48 เทียบ bank ของดีด้วย 1−cos จับรอยขีด คราบ จุดสี</div>
-      </div>
-      <div class="viz in d5">
-        <div class="card"><h4>Dense matching · query ↔ master</h4><svg id="match" viewBox="0 0 520 190"></svg></div>
-        <div class="card"><h4>Anomaly heatmap</h4><canvas id="heat" width="300" height="190"></canvas></div>
-        <div class="card"><h4>Normal range (MAD)</h4>
-          <div class="mad"><div style="flex:6;background:var(--ok)">OK</div><div style="flex:4;background:var(--warn)">≥6</div><div style="flex:4;background:var(--ng)">≥10</div></div>
-          <div class="k" style="font-family:var(--sans);letter-spacing:0;margin-top:10px;line-height:1.4">เกณฑ์เรียนรู้จากภาพของดี<br>ไม่ใช้ threshold ที่ตั้งด้วยมือ</div>
-          <div class="big" style="font-size:30px" id="lat2"></div></div>
-      </div>
+      <div class="card timing in d5"><div class="ct">เวลาต่อมุมกล้อง บน JETSON THOR</div><svg id="apTime" viewBox="0 0 1180 58"></svg></div>
     </div>
-    <div class="note ph-note" style="left:auto;right:1030px"></div>
+    <div class="note" style="left:auto;right:1300px;max-width:520px;bottom:40px">Status R&amp;D: defect ที่วัดเป็นของสังเคราะห์ (image processing) · เส้นตัด 6 / 10 MAD ยังรอ calibrate กับภาพ NG จริง · ผลจาก exp1–exp5 บน Jetson Thor</div>
   </section>
 </div>
 
@@ -5342,7 +5328,7 @@ window.XBOT="Z2xURgIAAABwtSwA5AEFAEpTT057ImFzc2V0Ijp7ImdlbmVyYXRvciI6Iktocm9ub3M
 <script>
 /* ============ แก้ตัวเลขทั้งหมดได้ที่นี่ ============ */
 const DATA = {
-  placeholder: true,            // true = แสดง * และหมายเหตุ "ตัวเลขตัวอย่าง" (ตั้ง false เมื่อใส่ค่าจริงแล้ว)
+  placeholder: false,            // true = แสดง * และหมายเหตุ "ตัวเลขตัวอย่าง" (ตั้ง false เมื่อใส่ค่าจริงแล้ว)
   // DMAIC (real data) — slide 2
   cap: { years:[2025,2026,2027,2028,2029,2030,2031,2032,2033], demand:[150,166,200,224,251,283,321,364,414], actual:4,
          lines:[['Manual ×3',259,'#ff3b5c'],['Auto ×1 + Manual ×2',346,'#ffb547'],['Auto ×2 + Manual ×1',432,'#5cc8ff'],['Auto ×3',518,'#9fc0ff']] },
@@ -5407,10 +5393,12 @@ function cmp(el,o,g){
     $(el).innerHTML=`<div class="r"><span>GLM-OCR</span><div class="t"><div class="f" data-w="${o.ai}" style="background:linear-gradient(90deg,#2f7bff,#6ea8ff)"></div></div><span class="v">${fmt(o.ai)}%</span></div>`; return; }
   $(g).innerHTML=`<span${PH}>+${fmt(o.ai-o.human)}</span><span class="u">pp</span>`;
   $(el).innerHTML=[['HUMAN',o.human,'#5d6a86'],['AI',o.ai,'linear-gradient(90deg,#2f7bff,#6ea8ff)']].map(([n,v,c])=>`<div class="r"><span>${n}</span><div class="t"><div class="f" data-w="${v}" style="background:${c}"></div></div><span class="v">${fmt(v)}%</span></div>`).join(''); }
-cmp('#ocrCmp',DATA.ocr,'#ocrGain'); cmp('#appCmp',DATA.appearance,'#appGain');
+cmp('#ocrCmp',DATA.ocr,'#ocrGain');
+$('#appGain').innerHTML=`0.956<span class="u">ROI AUROC</span>`;
+$('#appCmp').innerHTML=`<div class="r"><span>FLAGGED</span><div class="t"><div class="f" data-w="89.2" style="background:linear-gradient(90deg,#2f7bff,#6ea8ff)"></div></div><span class="v">89%</span></div><div class="r"><span>DATA</span><span style="grid-column:2/4;font-family:var(--sans)">defect สังเคราะห์ · AnomalyVFM few-shot</span></div>`;
 $('#cyc').innerHTML=`${DATA.aiSecPerUnit}<span class="u">s / ลูก · target</span>`;
-$('#lat').textContent=`AI inference ${DATA.latencyMs} ms / ภาพ บน Jetson Thor`;
-$('#lat2').innerHTML=`<span${PH}>${DATA.latencyMs}</span><span class="u">ms · 3 ROI</span>`;
+$('#lat').textContent=`Appearance ≈0.4 s / มุม · 3.5 s / ลูก (4 มุม + OCR) บน Jetson Thor`;
+
 document.querySelectorAll('.ph-note').forEach(n=>n.innerHTML=DATA.placeholder?'<b>*</b> ตัวเลขตัวอย่าง — แก้ที่ DATA ในไฟล์':'');
 
 /* stage scaling */
@@ -5470,32 +5458,114 @@ function runTerm(){
   termTimer=setTimeout(step,900);
 }
 
-/* matching svg */
+/* slide 5 illustrations (inline SVG) */
 (function(){
-  const svg=$('#match'),NS='http://www.w3.org/2000/svg';
-  const mk=(t,a,p=svg)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e;};
-  const bat=(cx,rot)=>{const g=mk('g',{transform:`translate(${cx},95) rotate(${rot})`});
-    mk('rect',{x:-78,y:-50,width:156,height:100,rx:7,fill:'#e4e8ec'},g); mk('rect',{x:-80,y:-50,width:160,height:14,rx:5,fill:'#1467e0'},g);
-    mk('rect',{x:-58,y:-16,width:116,height:60,rx:3,fill:'#1b82d8'},g); mk('text',{x:-50,y:14,fill:'#fff','font-size':26,'font-weight':700,'font-family':'sans-serif'},g).textContent='GS';
-    mk('circle',{cx:-50,cy:-50,r:6,fill:'#9aa3ad'},g); mk('circle',{cx:50,cy:-50,r:6,fill:'#9aa3ad'},g);};
-  bat(115,7); bat(405,0);
-  const a=7*Math.PI/180;
-  for(let i=0;i<40;i++){const u=(Math.random()*2-1)*70,v=(Math.random()*2-1)*42;
-    const qx=115+u*Math.cos(a)-v*Math.sin(a),qy=95+u*Math.sin(a)+v*Math.cos(a);
-    mk('line',{x1:qx,y1:qy,x2:405+u,y2:95+v,stroke:`hsl(${205+Math.random()*25},100%,${60+Math.random()*15}%)`,'stroke-width':.9,'stroke-opacity':.7});
-    mk('circle',{cx:qx,cy:qy,r:1.8,fill:'#bcd6ff'}); mk('circle',{cx:405+u,cy:95+v,r:1.8,fill:'#bcd6ff'});}
-  mk('text',{x:115,y:183,fill:'#8e9cba','font-size':12,'text-anchor':'middle','font-family':'JB Mono,monospace'}).textContent='query';
-  mk('text',{x:405,y:183,fill:'#8e9cba','font-size':12,'text-anchor':'middle','font-family':'JB Mono,monospace'}).textContent='master';
-})();
-/* heatmap */
-(function(){
-  const c=$('#heat'),g=c.getContext('2d'),W=c.width,Hh=c.height;
-  for(let y=0;y<Hh;y+=10)for(let x=0;x<W;x+=10){g.fillStyle=`rgba(${20+Math.random()*15},${25+Math.random()*20},${90+Math.random()*40},1)`;g.fillRect(x,y,9,9);}
-  const blob=(x,y,r,s)=>{const q=g.createRadialGradient(x,y,0,x,y,r);q.addColorStop(0,`rgba(255,255,255,${s})`);q.addColorStop(.25,`rgba(120,190,255,${s})`);
-    q.addColorStop(.6,`rgba(47,123,255,${s*.6})`);q.addColorStop(1,'rgba(20,40,120,0)');g.fillStyle=q;g.beginPath();g.arc(x,y,r,0,7);g.fill();};
-  blob(92,72,36,1);blob(212,138,24,.8);blob(246,52,13,.6);blob(58,160,11,.5);
-  g.strokeStyle='#ff3b5c';g.lineWidth=2;g.strokeRect(58,40,68,62);
-  g.fillStyle='#ff3b5c';g.font='600 12px JB Mono, monospace';g.fillText('scratch · 12.4 MAD → NG',58,32);
+  const F='font-family="JB Mono"', FT='font-family="Plex Thai"';
+  // battery pictogram (front view): white case, blue lid, yellow caps, blue label
+  const bat=(x,y,w,rot=0,o={})=>{const h=w*.72; let g=`<g transform="translate(${x},${y}) rotate(${rot})">`;
+    g+=`<rect x="${-w/2}" y="${-h/2+h*.14}" width="${w}" height="${h*.86}" rx="${w*.04}" fill="${o.ghost?'none':'#e4e8ec'}" stroke="${o.ghost?o.ghost:'none'}" stroke-width="1.5" ${o.ghost?'stroke-dasharray="4 3"':''}/>`;
+    if(!o.ghost){ g+=`<rect x="${-w/2-2}" y="${-h/2}" width="${w+4}" height="${h*.16}" rx="3" fill="#1467e0"/>`;
+      for(let k=0;k<6;k++) g+=`<rect x="${-w*.32+k*w*.13-w*.04}" y="${-h/2-h*.07}" width="${w*.08}" height="${h*.08}" rx="1.5" fill="#ffcf1a"/>`;
+      [-.44,.44].forEach(t=>g+=`<rect x="${w*t-w*.035}" y="${-h/2-h*.1}" width="${w*.07}" height="${h*.11}" rx="1.5" fill="#9aa3ad"/>`);
+      g+=`<rect x="${-w*.3}" y="${-h*.02}" width="${w*.6}" height="${h*.42}" rx="2" fill="#1b82d8"/><text x="${-w*.24}" y="${h*.24}" fill="#fff" font-size="${w*.2}" font-weight="700" font-family="sans-serif">GS</text>`;
+      if(o.glare) g+=`<ellipse cx="${w*.18}" cy="${-h*.18}" rx="${w*.09}" ry="${h*.05}" fill="#fff" opacity=".95"/>`;
+      if(o.overlay) g+=`<rect x="${-w*.42}" y="${-h*.22}" width="${w*.3}" height="${h*.3}" fill="none" stroke="#3dff6a" stroke-width="1.6"/><path d="M${w*.05},${-h*.25}l${w*.12},${h*.2}m0,${-h*.2}l${-w*.12},${h*.2}" stroke="#ff2d3a" stroke-width="1.6"/>`;
+      if(o.roi) g+=`<rect x="${-w*.33}" y="${-h*.05}" width="${w*.66}" height="${h*.48}" fill="none" stroke="#6ea8ff" stroke-width="1.6"/><rect x="${-w*.38}" y="${-h/2-h*.12}" width="${w*.76}" height="${h*.16}" fill="none" stroke="#ffb547" stroke-width="1.6"/><rect x="${w*.36}" y="${-h/2-h*.13}" width="${w*.16}" height="${h*.16}" fill="none" stroke="#5cc8ff" stroke-width="1.6"/>`;
+    }
+    return g+'</g>';};
+  // ---------- pipeline flow ----------
+  (function(){
+    const st=[
+      ['01','YOLO crop','640 letterbox → crop เต็มความละเอียด','60/60 ภาพ · ~15 ms'],
+      ['02','tiny-RoMa align','dense match 5,000 จุด · MAGSAC affine','52 ms · 0.34 GiB'],
+      ['03','Paste ROI','กล่องเดียวกันบน master + query','< 80% ในภาพ = NO_READ'],
+      ['04','Clean noise','ลบกราฟิกระบบเก่า + แสงสะท้อน','ความต่างของดี −20–23%'],
+    ];
+    const bw=176,bh=210,g=26,y0=26; let h='';
+    st.forEach(([n,t,d,k],i)=>{const x=i*(bw+g);
+      h+=`<rect x="${x}" y="${y0}" width="${bw}" height="${bh}" rx="12" fill="#070d1e" stroke="rgba(120,160,255,.2)"/>`+
+        `<text x="${x+12}" y="${y0+20}" fill="#6ea8ff" font-size="11.5" ${F} font-weight="600">${n}</text><text x="${x+36}" y="${y0+20}" fill="#eef3ff" font-size="15" ${FT} font-weight="700">${t}</text>`+
+        `<rect x="${x+10}" y="${y0+32}" width="${bw-20}" height="96" rx="6" fill="#03060e"/>`;
+      const cx=x+bw/2, cy=y0+84;
+      if(i===0){ h+=`<path d="M${x+14},${cy+30}H${x+bw-14}M${x+14},${cy+38}H${x+bw-14}" stroke="#2a3346" stroke-width="3"/>`+bat(cx+8,cy+2,62,-4)+
+        `<rect x="${cx-30}" y="${cy-36}" width="78" height="72" fill="none" stroke="#2f7bff" stroke-width="2"/><rect x="${cx-30}" y="${cy-50}" width="66" height="14" fill="#2f7bff"/><text x="${cx-26}" y="${cy-39}" fill="#fff" font-size="10" ${F}>battery .97</text>`; }
+      if(i===1){ h+=bat(cx-36,cy+2,50,8)+bat(cx+36,cy+2,50,0,{ghost:'#6ea8ff'})+bat(cx+36,cy+2,50,0);
+        for(let k=0;k<9;k++){const u=(k%3-1)*14, v=(Math.floor(k/3)-1)*11, a=8*Math.PI/180;
+          h+=`<line x1="${cx-36+u*Math.cos(a)-v*Math.sin(a)}" y1="${cy+2+u*Math.sin(a)+v*Math.cos(a)}" x2="${cx+36+u}" y2="${cy+2+v}" stroke="#6ea8ff" stroke-width=".9" opacity=".75"/>`;} }
+      if(i===2){ h+=bat(cx,cy+4,92,0,{roi:1})+`<text x="${x+16}" y="${cy+44}" fill="#8e9cba" font-size="10" ${F}>sticker · v_plug · pole</text>`; }
+      if(i===3){ h+=bat(cx-38,cy+2,56,0,{glare:1,overlay:1})+`<text x="${cx-8}" y="${cy+6}" fill="#6ea8ff" font-size="16" ${F}>→</text>`+bat(cx+38,cy+2,56,0)+
+        `<text x="${x+16}" y="${cy+44}" fill="#8e9cba" font-size="10" ${F}>Telea inpaint</text>`; }
+      // description + key number
+      h+=`<foreignObject x="${x+10}" y="${y0+134}" width="${bw-20}" height="44"><div xmlns="http://www.w3.org/1999/xhtml" style="font:400 12.5px/1.35 'Plex Thai';color:#8e9cba">${d}</div></foreignObject>`+
+         `<text x="${x+12}" y="${y0+bh-12}" fill="#c4d8ff" font-size="12.5" ${F} font-weight="600">${k}</text>`;
+      if(i<3) h+=`<path d="M${x+bw+4},${y0+bh/2}h${g-8}" stroke="#6ea8ff" stroke-width="1.6" marker-end="url(#ar)"/>`;
+    });
+    // fork to 3 branches
+    const fx=4*(bw+g)-g, bx=fx+44, bW=196, by=[y0+6,y0+76,y0+146], bH=58;
+    const br=[['ZNCC','ชิ้นที่อยู่นิ่ง','≥ 0.90','#5cc8ff'],['Shape match','ชิ้นที่หมุนได้','180 มุม × ±8 px','#9fc0ff'],['AnomalyVFM','ทุก ROI · เนื้อผิว','≥6 / ≥10 MAD','#2f7bff']];
+    br.forEach(([t,d,k,c],i)=>{const yy=by[i]+bH/2;
+      h+=`<path d="M${fx+4},${y0+bh/2} C${fx+26},${y0+bh/2} ${fx+20},${yy} ${bx-4},${yy}" fill="none" stroke="${c}" stroke-width="1.6" marker-end="url(#ar)"/>`+
+         `<rect x="${bx}" y="${by[i]}" width="${bW}" height="${bH}" rx="10" fill="${i===2?'rgba(47,123,255,.22)':'#070d1e'}" stroke="${c}" stroke-opacity=".7"/>`+
+         `<text x="${bx+12}" y="${by[i]+22}" fill="#eef3ff" font-size="14.5" ${FT} font-weight="700">${t}</text><text x="${bx+12}" y="${by[i]+43}" fill="#8e9cba" font-size="12" ${FT}>${d} · <tspan fill="${c}" ${F}>${k}</tspan></text>`+
+         `<path d="M${bx+bW+4},${yy} C${bx+bW+22},${yy} ${bx+bW+18},${y0+bh/2} ${bx+bW+34},${y0+bh/2}" fill="none" stroke="${c}" stroke-width="1.6"/>`;});
+    const vx=bx+bW+38;
+    h+=`<rect x="${vx}" y="${y0+bh/2-58}" width="${1180-vx}" height="116" rx="12" fill="#070d1e" stroke="rgba(120,160,255,.3)"/>`+
+       `<text x="${vx+(1180-vx)/2}" y="${y0+bh/2-30}" fill="#eef3ff" font-size="15" text-anchor="middle" ${FT} font-weight="700">Verdict</text>`+
+       [['OK','#5cc8ff'],['MARGINAL','#ffb547'],['NG','#ff3b5c'],['NO_READ','#8e9cba']].map(([t,c],k)=>`<text x="${vx+(1180-vx)/2}" y="${y0+bh/2-8+k*17}" fill="${c}" font-size="11.5" text-anchor="middle" ${F} font-weight="600">${t}</text>`).join('')+
+       `<text x="${vx+(1180-vx)/2}" y="${y0+bh/2+74}" fill="#8e9cba" font-size="11" text-anchor="middle" ${FT}>ROI แย่สุด = ผลของภาพ</text>`;
+    h=`<defs><marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="#6ea8ff"/></marker></defs>`+
+      `<text x="0" y="12" fill="#6ea8ff" font-size="11" ${F} letter-spacing="2">PREPROCESS</text><text x="${fx+44}" y="12" fill="#6ea8ff" font-size="11" ${F} letter-spacing="2">INFERENCE</text>`+h;
+    document.getElementById('apFlow').innerHTML=h;
+  })();
+  // ---------- ZNCC ----------
+  (function(){ let h='';
+    const pat=(x,y,w,hh,miss)=>{let g=`<rect x="${x}" y="${y}" width="${w}" height="${hh}" rx="4" fill="#dfe5ec"/>`;
+      if(!miss) g+=`<rect x="${x+10}" y="${y+10}" width="${w-20}" height="${hh-20}" rx="3" fill="#1b82d8"/><rect x="${x+16}" y="${y+18}" width="${w*.5}" height="6" fill="#fff"/><rect x="${x+16}" y="${y+30}" width="${w*.35}" height="5" fill="#ffcf1a"/>`;
+      else g+=`<rect x="${x+10}" y="${y+10}" width="${w-20}" height="${hh-20}" rx="3" fill="none" stroke="#ff3b5c" stroke-dasharray="4 3"/>`;
+      return g;};
+    h+=`<text x="0" y="12" fill="#8e9cba" font-size="10.5" font-family="JB Mono">template</text>`+pat(0,20,92,64);
+    h+=`<text x="118" y="12" fill="#8e9cba" font-size="10.5" font-family="JB Mono">query ±8 px</text>`+`<rect x="114" y="16" width="100" height="72" rx="5" fill="none" stroke="#6ea8ff" stroke-dasharray="3 3"/>`+pat(118,20,92,64);
+    h+=pat(232,20,92,64,true)+`<text x="232" y="12" fill="#ff8196" font-size="10.5" font-family="JB Mono">หาย</text>`;
+    const bar=(x,v,c)=>`<rect x="${x}" y="98" width="92" height="7" rx="3.5" fill="#0a1226"/><rect x="${x}" y="98" width="${92*v}" height="7" rx="3.5" fill="${c}"/><line x1="${x+92*.9}" x2="${x+92*.9}" y1="94" y2="109" stroke="#eef3ff" stroke-width="1.2"/>`;
+    h+=bar(118,.98,'#5cc8ff')+`<text x="118" y="120" fill="#5cc8ff" font-size="11" font-family="JB Mono" font-weight="600">0.98 OK</text>`;
+    h+=bar(232,.41,'#ff3b5c')+`<text x="232" y="120" fill="#ff8196" font-size="11" font-family="JB Mono" font-weight="600">0.41 NG</text>`;
+    h+=`<text x="0" y="104" fill="#8e9cba" font-size="10.5" font-family="JB Mono">เส้นตัด 0.90</text><text x="0" y="118" fill="#5d6a86" font-size="10" font-family="Plex Thai">ไม่ไวต่อแสงทั้งแผ่น</text>`;
+    document.getElementById('ilZncc').innerHTML=h; })();
+  // ---------- Shape match ----------
+  (function(){ let h=''; const plug=(cx,cy,r,rot,edges,miss)=>{let g=`<g transform="translate(${cx},${cy})">`;
+      if(!miss){ g+=`<circle r="${r}" fill="#ffcf1a"/><circle r="${r*.62}" fill="#e0b012"/>`; for(let k=0;k<4;k++){const a=(rot+k*90)*Math.PI/180; g+=`<line x1="${Math.cos(a)*r*.2}" y1="${Math.sin(a)*r*.2}" x2="${Math.cos(a)*r*.6}" y2="${Math.sin(a)*r*.6}" stroke="#8a6a00" stroke-width="3" stroke-linecap="round"/>`;} }
+      else g+=`<circle r="${r}" fill="#1467e0"/><circle r="${r*.5}" fill="#0f55bd"/>`;
+      if(edges) for(let k=0;k<24;k++){const a=k*15*Math.PI/180, px=Math.cos(a)*r, py=Math.sin(a)*r; g+=`<circle cx="${px}" cy="${py}" r="1.8" fill="#6ea8ff"/><line x1="${px}" y1="${py}" x2="${px+Math.cos(a)*7}" y2="${py+Math.sin(a)*7}" stroke="#6ea8ff" stroke-width="1"/>`;}
+      return g+'</g>';};
+    h+=`<text x="0" y="12" fill="#8e9cba" font-size="10.5" font-family="JB Mono">model</text>`+plug(48,58,30,0,true);
+    h+=`<text x="120" y="12" fill="#8e9cba" font-size="10.5" font-family="JB Mono">หมุนทุก 2°</text>`+plug(160,58,30,37,true)+
+       `<path d="M${160+40},${58-18} A44,44 0 0 1 ${160+30},${58+32}" fill="none" stroke="#9fc0ff" stroke-width="1.6" marker-end="url(#ar2)"/>`;
+    h+=`<text x="232" y="12" fill="#ff8196" font-size="10.5" font-family="JB Mono">จุกหาย</text>`+plug(272,58,30,0,false,true);
+    h+=`<text x="120" y="112" fill="#5cc8ff" font-size="11" font-family="JB Mono" font-weight="600">0.95+ OK</text><text x="232" y="112" fill="#ff8196" font-size="11" font-family="JB Mono" font-weight="600">≤0.73 NG</text>`+
+       `<text x="0" y="112" fill="#8e9cba" font-size="10.5" font-family="Plex Thai">ใช้ทิศ ไม่ใช้ความสว่าง</text>`;
+    h=`<defs><marker id="ar2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L8,4L0,8z" fill="#9fc0ff"/></marker></defs>`+h;
+    document.getElementById('ilShape').innerHTML=h; })();
+  // ---------- AnomalyVFM ----------
+  (function(){ let h=''; const n=12, c=8, hot=(i,j)=>{const d1=Math.hypot(i-3.2,j-4), d2=Math.hypot(i-9,j-8.5); return Math.max(Math.exp(-d1*d1/3), .55*Math.exp(-d2*d2/2));};
+    const col=v=>{const a=[[20,34,90],[47,123,255],[150,200,255],[255,255,255]]; const t=Math.min(.999,v)*3, k=Math.floor(t), f=t-k; return `rgb(${a[k].map((q,m)=>Math.round(q+(a[k+1][m]-q)*f)).join(',')})`;};
+    h+=`<text x="0" y="12" fill="#8e9cba" font-size="10.5" font-family="JB Mono">48×48 · 1−cos</text>`;
+    for(let i=0;i<n;i++)for(let j=0;j<n;j++){const v=hot(i,j)+(((i*7+j*13)%10)/100); h+=`<rect x="${i*c}" y="${20+j*c}" width="${c-1}" height="${c-1}" fill="${col(v)}"/>`;}
+    h+=`<rect x="${1.2*c}" y="${20+2*c}" width="${4.2*c}" height="${4.2*c}" fill="none" stroke="#ff3b5c" stroke-width="1.6"/>`;
+    const bx=112; h+=`<text x="${bx}" y="12" fill="#8e9cba" font-size="10.5" font-family="JB Mono">bank ของดี k = 4</text>`;
+    for(let k=0;k<4;k++) h+=`<rect x="${bx+k*28}" y="22" width="22" height="22" rx="3" fill="#1c2b52" stroke="rgba(120,160,255,.3)"/>`;
+    h+=`<text x="${bx}" y="62" fill="#8e9cba" font-size="10.5" font-family="Plex Thai">คะแนน ROI = เฉลี่ย 1% ช่องที่ร้อนสุด</text>`;
+    h+=`<rect x="${bx}" y="72" width="${6*20}" height="16" fill="#5cc8ff"/><rect x="${bx+120}" y="72" width="${4*20}" height="16" fill="#ffb547"/><rect x="${bx+200}" y="72" width="${2.4*20}" height="16" fill="#ff3b5c"/>`+
+       `<text x="${bx+4}" y="84" fill="#04101f" font-size="10.5" font-family="JB Mono" font-weight="700">OK</text><text x="${bx+124}" y="84" fill="#04101f" font-size="10.5" font-family="JB Mono" font-weight="700">≥6 MAD</text><text x="${bx+204}" y="84" fill="#04101f" font-size="10.5" font-family="JB Mono" font-weight="700">≥10</text>`+
+       `<path d="M${bx+228},${98}l-5,-8h10z" fill="#ff8196"/><text x="${bx}" y="112" fill="#ff8196" font-size="11" font-family="JB Mono" font-weight="600">scratch 12.4 MAD → NG</text>`;
+    document.getElementById('ilVfm').innerHTML=h; })();
+  // ---------- timing ----------
+  (function(){ const seg=[['preprocess',33,'#3a5388'],['align',60,'#2f7bff'],['roi',18,'#5cc8ff'],['logical',55,'#9fc0ff'],['structural (AnomalyVFM)',245,'#6ea8ff']];
+    const tot=seg.reduce((a,b)=>a+b[1],0), W=840; let x=0, h='';
+    seg.forEach(([n,v,c])=>{const w=W*v/tot; h+=`<rect x="${x}" y="4" width="${w-2}" height="24" rx="4" fill="${c}"/><text x="${x+6}" y="21" fill="#04101f" font-size="12" font-family="JB Mono" font-weight="700">${v}</text>`+
+      `<text x="${x+2}" y="${n==='align'||n==='logical'?46:46}" fill="#8e9cba" font-size="11.5" font-family="Plex Thai">${n==='preprocess'?'prep':n}</text>`; x+=w;});
+    h+=`<text x="${W+20}" y="22" fill="#eef3ff" font-size="20" font-family="JB Mono" font-weight="600">≈0.4 s<tspan fill="#8e9cba" font-size="12.5" font-family="Plex Thai"> / มุม</tspan></text>`+
+       `<text x="${W+20}" y="46" fill="#c4d8ff" font-size="12.5" font-family="Plex Thai">3.5 s / ลูก (4 มุม + OCR) · VRAM ~1.4 GB</text>`;
+    document.getElementById('apTime').innerHTML=h; })();
 })();
 </script>
 
@@ -5827,7 +5897,7 @@ const SHOTS=[
   {p:[-6.8,2.3,4.1],t:[-2.2,1.0,.2], off:.28, drift:.05},  // problem: operator
   {p:[4.7,4.3,7.1], t:[.35,1.62,.5], off:0, drift:.1},        // solution: full line
   {p:[-1.02,1.1,.56],t:[-1.24,.955,.05], off:-.2, drift:.015}, // OCR: front camera A1 view
-  {p:[-.2,2.35,1.4],t:[-.75,1.0,0], off:.25, drift:.02},  // appearance: over A2
+  {p:[-.2,2.35,1.4],t:[-.75,1.0,0], off:.37, drift:.02},  // appearance: over A2
 ];
 const from={p:new T.Vector3(...SHOTS[0].p),t:new T.Vector3(...SHOTS[0].t),off:SHOTS[0].off,drift:SHOTS[0].drift};
 const to={p:from.p.clone(),t:from.t.clone(),off:from.off,drift:from.drift}, curS={p:from.p.clone(),t:from.t.clone(),off:from.off,drift:from.drift};
